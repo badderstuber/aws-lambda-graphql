@@ -1,3 +1,7 @@
+**⚠️
+This is a fork of aws-lmabda-graphql that adds a fix to support dynamoDb global
+tables.
+**
 # Apollo AWS Lambda with GraphQL subscriptions
 
 <!-- prettier-ignore-start -->
