@@ -1,6 +1,7 @@
 {
-  "name": "aws-lambda-graphql",
-  "version": "1.0.0-alpha.23",
+  "name": "aws-lambda-graphql-global",
+  "description": "fork of aws-lambda-graphql that includes a fix to allow it to work the global tables",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "bugs": {

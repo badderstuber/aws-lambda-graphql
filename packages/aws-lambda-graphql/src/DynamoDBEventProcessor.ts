@@ -80,12 +80,14 @@ export class DynamoDBEventProcessor<TServer extends Server = Server>
         )) {
           const promises = subscribers
             .map(async (subscriber) => {
-
               // only allow subscribers from the region that matches the executing
               // lambda region to publish events. This is to support dynamoDb
               // global tables
-              if (subscriber.connection['aws:rep:updateregion'] !== process.env.AWS_REGION) 
-              {
+              if (
+                subscriber.connection['aws:rep:updateregion'] &&
+                subscriber.connection['aws:rep:updateregion'] !==
+                  process.env.AWS_REGION
+              ) {
                 return Promise.resolve();
               }
 

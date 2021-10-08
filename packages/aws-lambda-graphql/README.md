@@ -1,3 +1,8 @@
+**⚠️
+This is a fork of aws-lmabda-graphql that adds a fix to support dynamoDb global
+tables.
+**
+
 # aws-lambda-graphql
 
 [![CircleCI](https://img.shields.io/circleci/project/github/michalkvasnicak/aws-lambda-graphql/master.svg?style=flat-square)](https://circleci.com/gh/michalkvasnicak/aws-lambda-graphql)
