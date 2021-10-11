@@ -387,7 +387,7 @@ export class Server<
             let connection = await this.connectionManager.hydrateConnection(
               connectionId,
               {
-                retryCount: 1,
+                retryCount: waitRetryCount,
                 timeout: waitTimeout,
               },
             );
