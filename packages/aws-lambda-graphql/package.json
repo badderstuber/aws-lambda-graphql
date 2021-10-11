@@ -1,6 +1,6 @@
 {
-  "name": "aws-lambda-graphql-global",
-  "description": "fork of aws-lambda-graphql that includes a fix to allow it to work the global tables",
+  "name": "aws-lambda-graphql",
+  "description": "Apollo server for AWS Lambda with WebSocket subscriptions support over API Gateway v1 + v2",
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -30,7 +30,6 @@
     "README.md",
     "LICENSE"
   ],
-  "description": "Apollo server for AWS Lambda with WebSocket subscriptions support over API Gateway v1 + v2",
   "dependencies": {
     "@types/aws-lambda": "^8.10.36",
     "@types/ioredis": "^4.16.6",
