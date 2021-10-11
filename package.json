@@ -6,7 +6,13 @@
   "dependencies": {
     "aws-sdk": "^2.577.0",
     "graphql": "^15.5.0",
-    "graphql-subscriptions": "^1.1.0"
+    "graphql-subscriptions": "^1.1.0",
+    "@types/aws-lambda": "^8.10.36",
+    "@types/ioredis": "^4.16.6",
+    "apollo-server-core": "^2.9.14",
+    "apollo-server-lambda": "^2.9.14",
+    "iterall": "^1.2.2",
+    "ulid": "^2.3.0"
   },
   "resolutions": {
     "@types/aws-lambda": "^8.10.36",
