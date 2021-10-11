@@ -18,6 +18,8 @@ const DEFAULT_TTL = 7200;
 class DynamoDBConnectionManager {
     constructor({ apiGatewayManager, connectionsTable = 'Connections', dynamoDbClient, subscriptions, ttl = DEFAULT_TTL, debug = false, }) {
         this.hydrateConnection = async (connectionId, options) => {
+            console.log('++++++++++++++++ hydrateConnection');
+            console.trace();
             const { retryCount = 0, timeout = 50 } = options || {};
             // if connection is not found, throw so we can terminate connection
             let connection;
@@ -80,12 +82,18 @@ class DynamoDBConnectionManager {
             return connection;
         };
         this.sendToConnection = async (connection, payload) => {
+            console.log('!!! ************* aws-lambda-graphql - DynamoDBConnectionManager - sendToConnection - connection', connection);
+            console.log('!!! ************* aws-lambda-graphql - DynamoDBConnectionManager - sendToConnection - payload', payload);
             try {
                 await this.createApiGatewayManager(connection.data.endpoint)
-                    .postToConnection({ ConnectionId: connection.id, Data: payload })
+                    .postToConnection({ ConnectionId: connection.id, Data: payload }, function(err, data) {
+                      if (err) console.log(err, err.stack); // an error occurred
+                      else console.log(data);
+                    })
                     .promise();
             }
             catch (e) {
+                console.log('ERROR ************* aws-lambda-graphql - DynamoDBConnectionManager - sendToConnection - e', e);
                 // this is stale connection
                 // remove it from DB
                 if (e && e.statusCode === 410) {
@@ -97,6 +105,9 @@ class DynamoDBConnectionManager {
             }
         };
         this.unregisterConnection = async ({ id }) => {
+          console.log('{{{}}} ************* aws-lambda-graphql - DynamoDBConnectionManager - unregisterConnection - id', id);
+          console.trace('unregisterConnection');
+            // TEMP FIX - comment the delete 
             await Promise.all([
                 this.db
                     .delete({
@@ -135,10 +146,14 @@ class DynamoDBConnectionManager {
      * If custom api gateway manager is provided, uses it instead
      */
     createApiGatewayManager(endpoint) {
+      console.log('$$$ ************* aws-lambda-graphql - DynamoDBConnectionManager - createApiGatewayManager - endpoint', endpoint);
         if (this.apiGatewayManager) {
+            console.log('$$$ ************* aws-lambda-graphql - DynamoDBConnectionManager - createApiGatewayManager 1 - this.apiGatewayManager', this.apiGatewayManager);
             return this.apiGatewayManager;
         }
+        console.log('$$$ ************* aws-lambda-graphql - DynamoDBConnectionManager - createApiGatewayManager - new aws_sdk_1.ApiGatewayManagementApi({ endpoint })');
         this.apiGatewayManager = new aws_sdk_1.ApiGatewayManagementApi({ endpoint });
+        console.log('$$$ ************* aws-lambda-graphql - DynamoDBConnectionManager - createApiGatewayManager 2 - this.apiGatewayManager', this.apiGatewayManager);
         return this.apiGatewayManager;
     }
 }

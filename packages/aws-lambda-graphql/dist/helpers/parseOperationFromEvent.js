@@ -16,6 +16,7 @@ class InvalidOperationError extends errors_1.ExtendableError {
 }
 exports.InvalidOperationError = InvalidOperationError;
 function parseOperationFromEvent(event) {
+    console.log('************* aws-lambda-graphql - parseOperationFromEvent - event', event);
     const operation = JSON.parse(event.body);
     if (typeof operation !== 'object' && operation !== null) {
         throw new MalformedOperationError();

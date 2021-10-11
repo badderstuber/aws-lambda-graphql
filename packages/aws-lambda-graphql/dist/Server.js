@@ -26,7 +26,7 @@ const execute_1 = require("./execute");
 class Server extends apollo_server_lambda_1.ApolloServer {
     constructor(_a) {
         var { connectionManager, context, eventProcessor, onError, subscriptionManager, subscriptions } = _a, restConfig = __rest(_a, ["connectionManager", "context", "eventProcessor", "onError", "subscriptionManager", "subscriptions"]);
-        super(Object.assign(Object.assign({}, restConfig), { context: 
+        super(Object.assign(Object.assign({}, restConfig), { context:
             // if context is function, pass integration context from graphql server options and then merge the result
             // if it's object, merge it with integrationContext
             typeof context === 'function'
@@ -102,6 +102,8 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                         // if error is thrown during registration, connection is rejected
                         // we can implement some sort of authorization here
                         const endpoint = connectionEndpoint || helpers_1.extractEndpointFromEvent(event);
+                        console.log('!!! ************* aws-lambda-graphql - Server - endpoint', endpoint);
+                        console.log('!!! ************* aws-lambda-graphql - Server - onWebsocketConnect', onWebsocketConnect);
                         const connection = await this.connectionManager.registerConnection({
                             endpoint,
                             connectionId: event.requestContext.connectionId,
@@ -118,6 +120,7 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                                 }
                             }
                             catch (err) {
+                                console.log('!!! ************* aws-lambda-graphql - Server - err', err);
                                 const errorResponse = formatMessage_1.formatMessage({
                                     type: protocol_1.SERVER_EVENT_TYPES.GQL_ERROR,
                                     payload: { message: err.message },
@@ -142,6 +145,8 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                         };
                     }
                     case '$disconnect': {
+                      console.log('£££ ************* aws-lambda-graphql - Server - $disconnect - connectionId', event.requestContext.connectionId);
+
                         const { onDisconnect } = this.subscriptionOptions || {};
                         // this event is called eventually by AWS APIGateway v2
                         // we actualy don't care about a result of this operation because client is already
@@ -158,6 +163,8 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                         };
                     }
                     case '$default': {
+                      console.log('£££ ************* aws-lambda-graphql - Server - $default - connectionId', event.requestContext.connectionId);
+
                         // here we are processing messages received from a client
                         // if we respond here and the route has integration response assigned
                         // it will send the body back to client, so it is easy to respond with operation results
@@ -167,8 +174,8 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                         const operation = helpers_1.parseOperationFromEvent(event);
                         // hydrate connection
                         let connection = await this.connectionManager.hydrateConnection(connectionId, {
-                            retryCount: 1,
-                            timeout: waitTimeout,
+                            retryCount: 5,
+                            timeout: 500 // waitTimeout,
                         });
                         if (protocol_1.isGQLConnectionInit(operation)) {
                             let newConnectionContext = operation.payload;
@@ -220,7 +227,7 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                                     return freshConnection;
                                 }
                                 // wait for another round
-                                await new Promise((r) => setTimeout(r, waitTimeout));
+                                await new Promise((r) => setTimeout(r, 1000));
                             }
                             return freshConnection;
                         })();
@@ -277,7 +284,7 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                             lambdaContext,
                             onOperation,
                             operation,
-                            pubSub, 
+                            pubSub,
                             // tell execute to register subscriptions
                             registerSubscriptions: true, subscriptionManager: this.subscriptionManager }));
                         if (!iterall_1.isAsyncIterable(result)) {

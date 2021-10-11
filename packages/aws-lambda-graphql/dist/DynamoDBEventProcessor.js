@@ -24,7 +24,7 @@ class DynamoDBEventProcessor {
     constructor(options = {}) {
         this.log = options.log || console.log;
         this.onError = options.onError || ((err) => this.log(err));
-        this.debug = options.debug || false;
+        this.debug = true;
     }
     createHandler(server) {
         return async (lambdaEvent, lambdaContext) => {
@@ -55,58 +55,63 @@ class DynamoDBEventProcessor {
                     //  - if they are no more subscriptions, process next event
                     // make sure that you won't throw any errors otherwise dynamo will call
                     // handler with same events again
+
                     for (var _b = (e_1 = void 0, __asyncValues(subscriptionManager.subscribersByEvent(event))), _c; _c = await _b.next(), !_c.done;) {
                         const subscribers = _c.value;
                         const promises = subscribers
                             .map(async (subscriber) => {
-                            // only allow subscribers from the region that matches the executing
-                            // lambda region to publish events. This is to support dynamoDb
-                            // global tables
-                            if (subscriber.connection['aws:rep:updateregion'] &&
-                                subscriber.connection['aws:rep:updateregion'] !==
-                                    process.env.AWS_REGION) {
+                                // FIX
+                                console.log('||| *********** aws-lambda-graphql - DynamoDBEventProcessor - aws:rep:updateregion', subscriber.connection['aws:rep:updateregion']);
+                                if (subscriber.connection['aws:rep:updateregion'] &&
+                                  subscriber.connection['aws:rep:updateregion'] !== process.env.AWS_REGION
+                                ) {
+                                  return Promise.resolve();
+                                }
+                                // create PubSub for this subscriber
+                                const pubSub = new ArrayPubSub_1.ArrayPubSub([event]);
+                                const options = await server.createGraphQLServerOptions(lambdaEvent, lambdaContext, {
+                                    // this allows createGraphQLServerOptions() to append more extra data
+                                    // to context from connection.data.context
+                                    connection: subscriber.connection,
+                                    operation: subscriber.operation,
+                                    pubSub,
+                                });
+                                console.log('************* aws-lambda-graphql - DynamoDBEventProcessor - createHandler - options', options);
+                                // execute operation by executing it and then publishing the event
+                                const iterable = await execute_1.execute({
+                                    connectionManager,
+                                    subscriptionManager,
+                                    schema: options.schema,
+                                    event: lambdaEvent,
+                                    lambdaContext,
+                                    context: options.context,
+                                    connection: subscriber.connection,
+                                    operation: subscriber.operation,
+                                    pubSub,
+                                    registerSubscriptions: false,
+                                });
+                                if (!iterall_1.isAsyncIterable(iterable)) {
+                                    // something went wrong, probably there is an error
+                                    return Promise.resolve();
+                                }
+                                const iterator = iterall_1.getAsyncIterator(iterable);
+                                const result = await iterator.next();
+                                console.log('************* aws-lambda-graphql - DynamoDBEventProcessor - createHandler - subscriber.connection', subscriber.connection);
+                                if (result.value != null) {
+                                    console.log('************* aws-lambda-graphql - DynamoDBEventProcessor - createHandler - result.value.data', result.value.data);
+                                    if (this.debug)
+                                        this.log('Send event ', result);
+                                    this.log('*********** before sendToConnection');
+                                    return connectionManager.sendToConnection(subscriber.connection, formatMessage_1.formatMessage({
+                                        id: subscriber.operationId,
+                                        payload: result.value,
+                                        type: protocol_1.SERVER_EVENT_TYPES.GQL_DATA,
+                                        connectionId: subscriber.connection.id
+                                    }));
+                                    this.log('*********** after sendToConnection');
+                                }
                                 return Promise.resolve();
-                            }
-                            // create PubSub for this subscriber
-                            const pubSub = new ArrayPubSub_1.ArrayPubSub([event]);
-                            const options = await server.createGraphQLServerOptions(lambdaEvent, lambdaContext, {
-                                // this allows createGraphQLServerOptions() to append more extra data
-                                // to context from connection.data.context
-                                connection: subscriber.connection,
-                                operation: subscriber.operation,
-                                pubSub,
-                            });
-                            // execute operation by executing it and then publishing the event
-                            const iterable = await execute_1.execute({
-                                connectionManager,
-                                subscriptionManager,
-                                schema: options.schema,
-                                event: lambdaEvent,
-                                lambdaContext,
-                                context: options.context,
-                                connection: subscriber.connection,
-                                operation: subscriber.operation,
-                                pubSub,
-                                registerSubscriptions: false,
-                            });
-                            if (!iterall_1.isAsyncIterable(iterable)) {
-                                // something went wrong, probably there is an error
-                                return Promise.resolve();
-                            }
-                            const iterator = iterall_1.getAsyncIterator(iterable);
-                            const result = await iterator.next();
-                            if (result.value != null) {
-                                if (this.debug)
-                                    this.log('Send event ', result);
-                                return connectionManager.sendToConnection(subscriber.connection, formatMessage_1.formatMessage({
-                                    id: subscriber.operationId,
-                                    payload: result.value,
-                                    type: protocol_1.SERVER_EVENT_TYPES.GQL_DATA,
-                                    connectionId: subscriber.connection.id
-                                }));
-                            }
-                            return Promise.resolve();
-                        })
+                            })
                             .map((promise) => promise.catch(this.onError));
                         await Promise.all(promises);
                     }

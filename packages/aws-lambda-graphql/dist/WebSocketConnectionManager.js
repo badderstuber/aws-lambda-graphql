@@ -32,6 +32,7 @@ class WebSocketConnectionManager {
             return connection;
         };
         this.sendToConnection = (connection, payload) => {
+            console.log('!!! ************* aws-lambda-graphql - WebSocketConnectionManager - sendToConnection - payload', payload);
             return new Promise((resolve, reject) => {
                 try {
                     connection.socket.send(payload, (err) => err ? reject(err) : resolve());

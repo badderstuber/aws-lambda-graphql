@@ -29,6 +29,7 @@ if (Symbol.asyncIterator === undefined) {
 class DynamoDBSubscriptionManager {
     constructor({ dynamoDbClient, subscriptionsTableName = 'Subscriptions', subscriptionOperationsTableName = 'SubscriptionOperations', ttl = DEFAULT_TTL, getSubscriptionNameFromEvent = (event) => event.event, getSubscriptionNameFromConnection = (name) => name, } = {}) {
         this.subscribersByEvent = (event) => {
+            console.log('************* aws-lambda-graphql - DynamoDBSubscriptionManager - subscribersByEvent - event', event);
             let ExclusiveStartKey;
             let done = false;
             const name = this.getSubscriptionNameFromEvent(event);
@@ -69,6 +70,7 @@ class DynamoDBSubscriptionManager {
             };
         };
         this.subscribe = async (names, connection, operation) => {
+            console.log('************* aws-lambda-graphql - DynamoDBSubscriptionManager - subscribe - operation', operation);
             const subscriptionId = this.generateSubscriptionId(connection.id, operation.operationId);
             // we can only subscribe to one subscription in GQL document
             if (names.length !== 1) {

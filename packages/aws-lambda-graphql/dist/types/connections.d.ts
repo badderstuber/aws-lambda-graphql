@@ -4,7 +4,6 @@ export interface IConnection {
      * Unique connection id
      */
     readonly id: string;
-    readonly 'aws:rep:updateregion'?: string;
     /**
      * Extra connection data, this data is stored only upon registration
      * All values should be JSON serializable
