@@ -102,6 +102,7 @@ class DynamoDBEventProcessor {
                                     id: subscriber.operationId,
                                     payload: result.value,
                                     type: protocol_1.SERVER_EVENT_TYPES.GQL_DATA,
+                                    connectionId: subscriber.connection.id
                                 }));
                             }
                             return Promise.resolve();

@@ -105,6 +105,7 @@ export interface GQLData {
     id: string;
     payload: ExecutionResult;
     type: SERVER_EVENT_TYPES.GQL_DATA;
+    connectionId?: string;
 }
 export declare type GQLClientAllEvents = GQLConnectionInit | GQLOperation | GQLStopOperation;
 export declare type GQLServerAllEvents = GQLConnectionACK | GQLErrorEvent | GQLData | GQLComplete;

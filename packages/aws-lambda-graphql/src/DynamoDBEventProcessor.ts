@@ -136,6 +136,7 @@ export class DynamoDBEventProcessor<TServer extends Server = Server>
                     id: subscriber.operationId,
                     payload: result.value,
                     type: SERVER_EVENT_TYPES.GQL_DATA,
+                    connectionId: subscriber.connection.id,
                   }),
                 );
               }
