@@ -2,7 +2,7 @@
   "name": "aws-lambda-graphql",
   "version": "0.0.1",
   "description": "fork of aws-lambda-graphql that includes a fix to allow it to work the global tables. See ",
-  "main": "packages/aws-lamda-graphql/dist/index.js",
+  "main": "packages/aws-lambda-graphql/dist/index.js",
   "dependencies": {
     "aws-sdk": "^2.577.0",
     "graphql": "^15.5.0",
