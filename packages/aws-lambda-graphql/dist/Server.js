@@ -167,7 +167,7 @@ class Server extends apollo_server_lambda_1.ApolloServer {
                         const operation = helpers_1.parseOperationFromEvent(event);
                         // hydrate connection
                         let connection = await this.connectionManager.hydrateConnection(connectionId, {
-                            retryCount: 1,
+                            retryCount: waitRetryCount,
                             timeout: waitTimeout,
                         });
                         if (protocol_1.isGQLConnectionInit(operation)) {
